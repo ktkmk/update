@@ -66,7 +66,7 @@ public class EmployeeController {
             return edit(code, model);
         }
         System.out.println("Updating employee: " + employee);
-        employeeService.save(employee);
+        employeeService.update(employee);
 
         return "redirect:/employees";
     }

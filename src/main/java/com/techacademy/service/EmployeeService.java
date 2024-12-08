@@ -29,6 +29,8 @@ public class EmployeeService {
     @Transactional
     public ErrorKinds save(Employee employee) {
 
+        Employee existing = findByCode(employee.getCode());
+
         // パスワードチェック
         ErrorKinds result = employeePasswordCheck(employee);
         if (ErrorKinds.CHECK_OK != result) {
@@ -49,6 +51,35 @@ public class EmployeeService {
         employeeRepository.save(employee);
         return ErrorKinds.SUCCESS;
     }
+    @Transactional
+    public ErrorKinds update(Employee employee) {
+        // 既存の従業員情報を取得
+        Employee existEmployee = findByCode(employee.getCode());
+
+        if (!employee.getPassword().isEmpty()) {
+            //パスワードチェック
+            ErrorKinds result = employeePasswordCheck(employee);
+            if(ErrorKinds.CHECK_OK!=result) {
+                return result;
+            }
+
+           existEmployee.setPassword(passwordEncoder.encode(employee.getPassword()));
+        }
+
+    // 更新日時を設定
+    LocalDateTime now = LocalDateTime.now();
+    existEmployee.setUpdatedAt(now);
+
+    // その他の情報を更新
+    existEmployee.setName(employee.getName());
+    existEmployee.setRole(employee.getRole());
+    // データベースに保存
+    employeeRepository.save(existEmployee);
+
+    return ErrorKinds.SUCCESS; // 正常終了
+}
+
+
 
     // 従業員削除
     @Transactional
